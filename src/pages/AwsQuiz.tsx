@@ -14,7 +14,7 @@ const AwsQuiz: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   // Number of questions to show
-  const QUESTION_LIMIT = 10;
+  const QUESTION_LIMIT = 5;
 
   // Load questions when component mounts
   useEffect(() => {
@@ -183,11 +183,11 @@ const AwsQuiz: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 py-12">
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="bg-white shadow-md rounded-lg overflow-hidden">
           {/* Quiz header */}
           <div className="bg-secondary text-white px-6 py-4">
-            <h1 className="text-xl font-bold">AWS Certification Quiz</h1>
+            <h1 className="text-xl font-bold">AWS Certified Developer Associate Exam</h1>
             <p className="text-sm mt-1">
               Question {currentQuestionIndex + 1} of {questions.length} | 
               {answeredQuestionsCount} of {questions.length} answered
