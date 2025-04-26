@@ -4,6 +4,8 @@ import { useAuth } from "./context/AuthContext";
 import "./index.css";
 
 // Pages
+import LandingPage from "./pages/LandingPage";
+import SampleTest from "./pages/SampleTest";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import UserDashboard from "./pages/UserDashboard";
@@ -36,7 +38,8 @@ function App() {
       <div className="min-h-screen bg-gray-50">
         <Routes>
           {/* Public routes */}
-          <Route path="/" element={<Navigate to="/login" replace />} />
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/sample-test" element={<SampleTest />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
 
