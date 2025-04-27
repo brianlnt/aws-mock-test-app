@@ -12,6 +12,8 @@ const AwsQuiz: React.FC = () => {
   const [showResults, setShowResults] = useState(false);
   const [score, setScore] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  const [startQuiz, setStartQuiz] = useState(false);
+  const [selectedQuestionIndex, setSelectedQuestionIndex] = useState<number | null>(null);
 
   // Number of questions to show
   const QUESTION_LIMIT = 5;
@@ -73,6 +75,7 @@ const AwsQuiz: React.FC = () => {
     const calculatedScore = Math.round((correctAnswers / questions.length) * 100);
     setScore(calculatedScore);
     setShowResults(true);
+    // setStartQuiz(false);
   };
 
   const handleRestartQuiz = () => {
@@ -81,6 +84,10 @@ const AwsQuiz: React.FC = () => {
     setSelectedOptions(new Array(questions.length).fill(null));
     setShowResults(false);
     setScore(0);
+  };
+
+  const handleQuestionClick = (index: number) => {
+    setSelectedQuestionIndex(index);
   };
 
   if (isLoading) {
@@ -107,58 +114,101 @@ const AwsQuiz: React.FC = () => {
           <div className="bg-white shadow-md rounded-lg overflow-hidden">
             <div className="px-6 py-8">
               <h1 className="text-2xl font-bold text-center mb-6">Your Results</h1>
-              
+  
               <div className="text-center mb-8">
                 <div className="inline-flex items-center justify-center h-24 w-24 rounded-full bg-primary-100 text-primary-800">
                   <span className="text-3xl font-bold">{score}%</span>
                 </div>
                 <p className="mt-4 text-lg">
-                  You got <span className="font-semibold">
-                    {questions.filter((_, i) => selectedOptions[i] === questions[i].correctOption).length}
-                  </span> out of <span className="font-semibold">{questions.length}</span> questions correct.
+                  You got{" "}
+                  <span className="font-semibold">
+                    {questions.filter(
+                      (_, i) => selectedOptions[i] === questions[i].correctOption
+                    ).length}
+                  </span>{" "}
+                  out of <span className="font-semibold">{questions.length}</span>{" "}
+                  questions correct.
                 </p>
               </div>
-
-              {/* Results details */}
-              <div className="space-y-6 mt-8">
-                <h2 className="text-xl font-semibold">Question Review</h2>
-                
-                {questions.map((question, index) => (
-                  <div key={question.id} className="border rounded-lg p-4">
+  
+              {/* Progress Tracker */}
+              <div className="mb-8">
+                <h2 className="text-lg font-medium text-gray-700 mb-4">
+                  Questions:
+                </h2>
+                <div className="flex flex-wrap gap-2">
+                  {questions.map((_, index) => {
+                    const isCorrect =
+                      selectedOptions[index] === questions[index].correctOption;
+                    const isAnswered = selectedOptions[index] !== null;
+  
+                    return (
+                      <div
+                        key={index}
+                        onClick={() => handleQuestionClick(index)}
+                        className={`w-8 h-8 flex items-center justify-center rounded-full text-white font-bold cursor-pointer ${
+                          isAnswered
+                            ? isCorrect
+                              ? "bg-green-500"
+                              : "bg-red-500"
+                            : "bg-gray-300"
+                        }`}
+                      >
+                        {index + 1}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+  
+              {/* Show Question Details */}
+              {selectedQuestionIndex !== null && (
+                <div className="space-y-6 mt-8">
+                  <h2 className="text-xl font-semibold">
+                    Question {selectedQuestionIndex + 1} Review
+                  </h2>
+                  <div className="border rounded-lg p-4">
                     <p className="font-semibold text-gray-800">
-                      Question {index + 1}: {question.text}
+                      {questions[selectedQuestionIndex].text}
                     </p>
-                    
+
                     <div className="mt-2 space-y-2">
-                      {question.options.map((option, optIdx) => (
-                        <div 
+                      {questions[selectedQuestionIndex].options.map((option, optIdx) => (
+                        <div
                           key={optIdx}
                           className={`p-2 rounded ${
-                            optIdx === question.correctOption
+                            optIdx === questions[selectedQuestionIndex].correctOption
                               ? "bg-green-100 border border-green-300"
-                              : optIdx === selectedOptions[index] && optIdx !== question.correctOption
-                                ? "bg-red-100 border border-red-300"
-                                : "bg-gray-50 border border-gray-200"
+                              : optIdx === selectedOptions[selectedQuestionIndex] &&
+                                optIdx !== questions[selectedQuestionIndex].correctOption
+                              ? "bg-red-100 border border-red-300"
+                              : "bg-gray-50 border border-gray-200"
                           }`}
                         >
                           {option}
-                          {optIdx === question.correctOption && (
-                            <span className="ml-2 text-green-600 font-medium">(Correct)</span>
+                          {optIdx === questions[selectedQuestionIndex].correctOption && (
+                            <span className="ml-2 text-green-600 font-medium">
+                              (Correct)
+                            </span>
                           )}
-                          {optIdx === selectedOptions[index] && optIdx !== question.correctOption && (
-                            <span className="ml-2 text-red-600 font-medium">(Your Answer)</span>
-                          )}
+                          {optIdx === selectedOptions[selectedQuestionIndex] &&
+                            optIdx !== questions[selectedQuestionIndex].correctOption && (
+                              <span className="ml-2 text-red-600 font-medium">
+                                (Your Answer)
+                              </span>
+                            )}
                         </div>
                       ))}
                     </div>
-                    
+
                     <div className="mt-3 text-sm text-gray-600">
-                      <strong>Explanation:</strong> {question.explanation}
+                      <strong>Explanation:</strong>{" "}
+                      {questions[selectedQuestionIndex].explanation}
                     </div>
                   </div>
-                ))}
-              </div>
-              
+                </div>
+              )}
+  
               <div className="mt-8 text-center">
                 <Button onClick={handleRestartQuiz}>Take Quiz Again</Button>
               </div>
@@ -178,6 +228,17 @@ const AwsQuiz: React.FC = () => {
     );
   }
 
+  if(!startQuiz){
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen px-4">
+        <div className="text-gray-600 text-xl font-medium mb-4">
+          AWS Certified Developer Associate Quiz
+        </div>
+        <Button onClick={() => setStartQuiz(true)}>Start Quiz</Button>
+      </div>
+    );
+  }
+
   const currentQuestion = questions[currentQuestionIndex];
   const answeredQuestionsCount = selectedOptions.filter(opt => opt !== null).length;
 
@@ -189,8 +250,7 @@ const AwsQuiz: React.FC = () => {
           <div className="bg-secondary text-white px-6 py-4">
             <h1 className="text-xl font-bold">AWS Certified Developer Associate Exam</h1>
             <p className="text-sm mt-1">
-              Question {currentQuestionIndex + 1} of {questions.length} | 
-              {answeredQuestionsCount} of {questions.length} answered
+              Question {currentQuestionIndex + 1} of {questions.length}
             </p>
           </div>
 
@@ -239,7 +299,7 @@ const AwsQuiz: React.FC = () => {
               ) : (
                 <Button 
                   onClick={handleSubmit}
-                  disabled={answeredQuestionsCount < questions.length}
+                  // disabled={answeredQuestionsCount < questions.length}
                 >
                   Submit
                 </Button>
